@@ -36,4 +36,4 @@ node SLPDividend_test.js
 ~~~
 
  
-![Current output from SLPDividend.js](https://raw.githubusercontent.com/fifikobayashi/SLP-Dividend-Contract/master/SLP%20dividend.png)
+![Current output from SLPDividend.js](https://raw.githubusercontent.com/fifikobayashi/SLP-Dividend-Contract/master/Screenshots/SLP%20dividend%20-%20send%20output.png)
