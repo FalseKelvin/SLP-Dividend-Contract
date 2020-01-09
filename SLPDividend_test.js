@@ -17,7 +17,7 @@ async function run() {
 	// initialise parameters
 	var totalCCDCHeld = 0;
 	var distributionRate = 0;
-	var totalBCHDeposited = 1.0; // will retrieve dynamically in later versions
+	var totalBCHDeposited = 1.0; // for testnet use only, for mainnet refer directly to var balance.balance
 
 	//retrieve address details for crowdfund cash address
 	var balance = await SLP.Address.details(crowdFundAddress);
@@ -26,7 +26,7 @@ async function run() {
 	var ccdcHolders = await SLP.Utils.balancesForToken(CCDCTOKENID); 
 	const ccdcAddrCount = ccdcHolders.length;
 
-	// loop through the array of CCDC token holders
+	// loop through the array of CCDC token holders to take a snapshot of all SLP balances
 	for (var i = 0; i < ccdcAddrCount; i++) {
 		console.log('\nCCDC V3 Token holder #' + i + ' ' +
 			'\nSLP Address: ' + ccdcHolders[i].slpAddress +
@@ -44,13 +44,23 @@ async function run() {
 	console.log('\n***Distribution ratio is: ' + distributionRate.toString() 
 		+ ' BCH per 1.0 CCDC SLP token held. \ne.g. holders of 0.5 CCDC will get ' 
 		+ (distributionRate/2).toString() + ' BCH.\n');
+
+	// 2nd iteration through array of CCDC holders to send alloted BCH
+	for (var i = 0; i < ccdcAddrCount; i++) {
+		var sendAmount = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
+		sendBch(ccdcHolders[i].cashAddress, sendAmount); // sends the BCH to the holder's cash address
+		console.log('\nSLP Address: ' + ccdcHolders[i].slpAddress +
+			'\nCCDC V3 tokens held: ' + ccdcHolders[i].tokenBalance + 
+			'\nSent ' +  sendAmount + ' BCH\n');
+	}
+
 }
 
-// distribution of the BCH in the crowdfund address to holders of the SLP token
-async function sendBch() {
+// distribution of the BCH from the crowdfund address to holders of the SLP token
+async function sendBch(cashAddress, sendAmount) {
 	try {
-		
-		
+		//TODO: sends sendAmount to the cashAddress
+		// need to decide whether to send via SLP SDK or instantiate Cashscript for sending mechanism		
 	}
 	catch (err) {
 		console.error(`Error in sendBch: `, err)
