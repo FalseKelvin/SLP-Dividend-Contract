@@ -15,12 +15,13 @@
   //
   // Initiate a second loop through tokenHolders Array to send:
   //	1. (distributionRate * tokenHolder.tokenBalance) worth of BCH tokens to tokenHolder.cashAddress
-  //	2. track remaining BCH tokens for distribution 
+  //	2. decide whether the sending mechanism should be done via SLP SDK or to instantiate Cashscript
   //
   // Challenges:
-  //	1. No loop functions in cashscript yet so unable to traverse the array onchain
-  //	2. No * operand so unable to apply distribution ratio
-  //  3. Figure out logic to set aside transaction fees for each dividend distribution
+  //	1. No existing BCH op codes to store and retrieve data, hence not sure of how the contract to keep 'state'
+  //  2. No loop functions in cashscript yet so unable to traverse the array onchain - a security risk
+  //	3. No * operand due to incompatibility with Bitcoin script, so can't calculate distribution ratio onchain - a security risk
+  //  4. Figure out logic to set aside transaction fees for each dividend distribution
 ~~~
 
 ***Getting started***
@@ -31,7 +32,7 @@ Clone the repo and run the client logic in SLPDividend.js
 ~~~
 git clone https://github.com/fifikobayashi/SLP-Dividend-Contract
 cd SLP-Dividend-Contract
-node SLPDividend.js
+node SLPDividend_test.js
 ~~~
 
  
