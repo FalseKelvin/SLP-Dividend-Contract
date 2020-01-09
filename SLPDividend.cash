@@ -16,7 +16,9 @@ contract oneForTen(bytes20 pkh) {
 	//	1. (distributionRate * tokenHolder.tokenBalance) worth of BCH to tokenHolder.cashAddress
 	//	2. track remaining BCH tokens for distribution 
 	//
-	// Challenges:
-	// 	1. No loop functions in cashscript yet so unable to traverse the array onchain
-  	// 	2. No * operand so unable to apply distribution ratio
+  	// Challenges:
+  	//  1. No existing BCH op codes to store and retrieve data, hence not sure of how the contract to keep 'state'
+  	//  2. No loop functions in cashscript yet so unable to traverse the array onchain - a security risk
+  	//  3. No * operand due to incompatibility with Bitcoin script, so can't calculate distribution ratio onchain - a security risk
+  	//  4. Figure out logic to set aside transaction fees for each dividend distribution
 }
