@@ -10,6 +10,13 @@ contract oneForTen(bytes20 pkh) {
 
 	}
 
+	// compares the token ID used by the JS to the ID stored onchain via blockpress
+	function validateTokenID(string localTokenId, string onchainTokenId) {
+		
+		require(localTokenId == onchainTokenId);
+		
+	}
+
 	// TODO: move the following distribution logic in here
 	//
 	// Initiate a second loop through tokenHolders Array to send:
