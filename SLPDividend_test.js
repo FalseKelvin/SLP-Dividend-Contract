@@ -10,9 +10,13 @@ async function run() {
 	
 	// Initialise SLP SDK
 	const SLPSDK = require("../../slp-sdk/lib/SLP"); // amend depending on where the SLP SDK is stored
-	const SLP = new SLPSDK({ restURL: `https://trest.bitcoin.com/v2/` }); //testnet
-     
-	// initialise distribution parameters
+	
+	// instantiate the SLP SDK based on the chosen network
+	if (network === `mainnet`)
+		SLP = new SLPSDK({ restURL: `https://rest.bitcoin.com/v2/` })
+	else SLP = new SLPSDK({ restURL: `https://trest.bitcoin.com/v2/` })
+
+	// initialise distribution variables
 	var totalCCDCHeld = 0;
 	var distributionRate = 0;
 	var totalBCHDeposited = 1.0; // for testnet use only, for mainnet refer directly to var balance.balance
@@ -20,36 +24,42 @@ async function run() {
 	// retrieves and decodes the CCDC V3 token ID permanently stored onchain via blockpress
 	let memopress = require('memopress');
 	var memo = memopress.decode('OP_RETURN 653 6a028d024065633130613633613430363764666638356138626139323536646430633961383666323566396134313931623734313161353466356332666466643139323231').message;
-	const onchainTokenId = memo.split('@').pop();
+	const onchainTokenId = memo.split('@').pop(); // removes the '@' and opcode from buffer
 
-	// TODO: figure out how to work out a boolean event from cashscript validateTokenId
-	console.log('2 tokens match? ' + validateTokenId(CCDCTOKENID, onchainTokenId));
+	// boolean outcome from cashscript method
+	var validation = await validateTokenId(CCDCTOKENID, onchainTokenId);
+	
+	if (validation == true) { // if token ID matches the onchain version
 
-	//retrieve address details for crowdfund cash address
-	var balance = await SLP.Address.details(crowdFundAddress);
+		//retrieve address details for crowdfund cash address
+		var balance = await SLP.Address.details(crowdFundAddress);
 
-	// retrieve array of CCDC V3 token holders
-	var ccdcHolders = await SLP.Utils.balancesForToken(CCDCTOKENID); 
-	const ccdcAddrCount = ccdcHolders.length;
+		// retrieve array of CCDC V3 token holders
+		var ccdcHolders = await SLP.Utils.balancesForToken(CCDCTOKENID); 
+		const ccdcAddrCount = ccdcHolders.length;
 
-	// loop through the array of CCDC token holders to take a snapshot of all SLP balances
-	for (var i = 0; i < ccdcAddrCount; i++) {
-		totalCCDCHeld = totalCCDCHeld + ccdcHolders[i].tokenBalance // tracks CCDC circulating supply 
-	}
+		// loop through the array of CCDC token holders to take a snapshot of all SLP balances
+		for (var i = 0; i < ccdcAddrCount; i++) {
+			totalCCDCHeld = totalCCDCHeld + ccdcHolders[i].tokenBalance // tracks CCDC circulating supply 
+		}
+		
+		// calculate distribution of the airdrop token based on CCDC V3 token balances of each wallet
+		distributionRate = totalBCHDeposited / totalCCDCHeld;
 	  
-	// calculate distribution of the airdrop token based on CCDC V3 token balances of each wallet
-	distributionRate = totalBCHDeposited / totalCCDCHeld;
-  
-	console.log('\n***Distribution ratio is: ' + distributionRate.toString() 
-		+ ' BCH per 1.0 CCDC SLP token held. \ne.g. holders of 0.5 CCDC will get ' 
-		+ (distributionRate/2).toString() + ' BCH.\n');
+		console.log('\n***Distribution ratio is: ' + distributionRate.toString() 
+			+ ' BCH per 1.0 CCDC SLP token held. \ne.g. holders of 0.5 CCDC will get ' 
+			+ (distributionRate/2).toString() + ' BCH.\n');
 
-	// 2nd iteration through array of CCDC holders to send alloted BCH
-	for (var i = 0; i < ccdcAddrCount; i++) {
-		var sendAmount = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
-		sendBch(ccdcHolders[i].cashAddress, sendAmount); // sends the BCH to the holder's cash address
+		// 2nd iteration through array of CCDC holders to send alloted BCH
+		for (var i = 0; i < ccdcAddrCount; i++) {
+			var sendAmount = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
+			sendBch(ccdcHolders[i].cashAddress, sendAmount); // sends the BCH to the holder's cash address
+		}
+
+	} else { // if the token ID did not match the onchain version
+		
+		console.log('Error: Token ID did not match onchain version');
 	}
-
 }
 
 // instantiates cashscript and calls on SLPDividend.cash to validate
@@ -74,10 +84,16 @@ async function validateTokenId(localId, onchainId) {
 	// Instantiate a new P2PKH contract with constructor arguments: { pkh: crowdfundPkh }
 	const instance = P2PKH.new(crowdfundPkh);
 
-    // Call the validateTokenId function in cashscript
-	const tx = await instance.functions.validateTokenID(localId, onchainId);
-	
-	return tx;
+	try {
+		// Call the validateTokenId function in cashscript
+		// returns true if no error is caught
+		var tx = await instance.functions.validateTokenID(localId, onchainId);
+		return true;
+	} catch (err) {
+		// returns false if comparison fails
+		console.log('Error: ' + err);
+		return false;
+	}
 }
 
 // distribution of the BCH from the crowdfund address to holders of the SLP token
