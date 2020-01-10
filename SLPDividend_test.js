@@ -7,17 +7,23 @@ const network = 'testnet';
     
 run();
 async function run() {
-	// Initialise BITBOX
-	const bitbox = new BITBOX({ restURL: 'https://trest.bitcoin.com/v2/' });
-
+	
 	// Initialise SLP SDK
 	const SLPSDK = require("../../slp-sdk/lib/SLP"); // amend depending on where the SLP SDK is stored
 	const SLP = new SLPSDK({ restURL: `https://trest.bitcoin.com/v2/` }); //testnet
-  
-	// initialise parameters
+     
+	// initialise distribution parameters
 	var totalCCDCHeld = 0;
 	var distributionRate = 0;
 	var totalBCHDeposited = 1.0; // for testnet use only, for mainnet refer directly to var balance.balance
+
+	// retrieves and decodes the CCDC V3 token ID permanently stored onchain via blockpress
+	let memopress = require('memopress');
+	var memo = memopress.decode('OP_RETURN 653 6a028d024065633130613633613430363764666638356138626139323536646430633961383666323566396134313931623734313161353466356332666466643139323231').message;
+	const onchainTokenId = memo.split('@').pop();
+
+	// TODO: figure out how to work out a boolean event from cashscript validateTokenId
+	console.log('2 tokens match? ' + validateTokenId(CCDCTOKENID, onchainTokenId));
 
 	//retrieve address details for crowdfund cash address
 	var balance = await SLP.Address.details(crowdFundAddress);
@@ -28,15 +34,8 @@ async function run() {
 
 	// loop through the array of CCDC token holders to take a snapshot of all SLP balances
 	for (var i = 0; i < ccdcAddrCount; i++) {
-		console.log('\nCCDC V3 Token holder #' + i + ' ' +
-			'\nSLP Address: ' + ccdcHolders[i].slpAddress +
-			'\nCCDC V3 tokens held: ' + ccdcHolders[i].tokenBalance);
 		totalCCDCHeld = totalCCDCHeld + ccdcHolders[i].tokenBalance // tracks CCDC circulating supply 
 	}
-  	console.log('\n***Total CCDC V3 tokens in circulation: ' + totalCCDCHeld + ' across ' + i + ' wallets');
-	console.log('\n***Total BCH deposited: ' + totalBCHDeposited);
-	console.log('Crowd Funding Balance: ' + balance.balance + ' BCH');
-	console.log('Total BCH for distribution: ' + totalBCHDeposited + ' BCH for this test');
 	  
 	// calculate distribution of the airdrop token based on CCDC V3 token balances of each wallet
 	distributionRate = totalBCHDeposited / totalCCDCHeld;
@@ -49,11 +48,36 @@ async function run() {
 	for (var i = 0; i < ccdcAddrCount; i++) {
 		var sendAmount = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
 		sendBch(ccdcHolders[i].cashAddress, sendAmount); // sends the BCH to the holder's cash address
-		console.log('\nSLP Address: ' + ccdcHolders[i].slpAddress +
-			'\nCCDC V3 tokens held: ' + ccdcHolders[i].tokenBalance + 
-			'\nSent ' +  sendAmount + ' BCH\n');
 	}
 
+}
+
+// instantiates cashscript and calls on SLPDividend.cash to validate
+// the token ID being used
+async function validateTokenId(localId, onchainId) {
+		
+	// Initialise BITBOX
+	const bitbox = new BITBOX({ restURL: 'https://trest.bitcoin.com/v2/' });
+
+	// Initialise HD node and alice's keypair
+	const rootSeed = bitbox.Mnemonic.toSeed('CashScript');
+	const hdNode = bitbox.HDNode.fromSeed(rootSeed, network);
+	const crowdfund = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 0));
+
+	// Derive alice's public key and public key hash
+	const crowdfundPk = bitbox.ECPair.toPublicKey(crowdfund);
+	const crowdfundPkh = bitbox.Crypto.hash160(crowdfundPk);
+
+	// Compile the P2PKH Cash Contract
+	const P2PKH = Contract.compile(path.join(__dirname, 'SLPDividend.cash'), network);
+
+	// Instantiate a new P2PKH contract with constructor arguments: { pkh: crowdfundPkh }
+	const instance = P2PKH.new(crowdfundPkh);
+
+    // Call the validateTokenId function in cashscript
+	const tx = await instance.functions.validateTokenID(localId, onchainId);
+	
+	return tx;
 }
 
 // distribution of the BCH from the crowdfund address to holders of the SLP token
