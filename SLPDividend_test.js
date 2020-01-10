@@ -1,7 +1,7 @@
 const { BITBOX } = require('bitbox-sdk');
 const { Contract, Sig } = require('cashscript');
 const path = require('path');
-const CCDCTOKENID =	"ec10a63a4067dff85a8ba9256dd0c9a86f25f9a4191b7411a54f5c2fdfd19221"; // CCDC V3 token ID
+const CCDCTOKENID = "ec10a63a4067dff85a8ba9256dd0c9a86f25f9a4191b7411a54f5c2fdfd19221"; // CCDC V3 token ID on testnet
 const crowdFundAddress = 'bchtest:qz95aqed425r2esx8mtn6a5rt5jg3xl8mgwhn9476y'; // address holding the BCH for distribution
 const network = 'testnet';
     
@@ -62,7 +62,7 @@ async function run() {
 	}
 }
 
-// instantiates cashscript and calls on SLPDividend.cash to validate
+// instantiates cashscript and calls on SLPDividend.cash contract to validate
 // the token ID being used
 async function validateTokenId(localId, onchainId) {
 		
@@ -74,7 +74,7 @@ async function validateTokenId(localId, onchainId) {
 	const hdNode = bitbox.HDNode.fromSeed(rootSeed, network);
 	const crowdfund = bitbox.HDNode.toKeyPair(bitbox.HDNode.derive(hdNode, 0));
 
-	// Derive alice's public key and public key hash
+	// Derive crowdfund's public key and public key hash
 	const crowdfundPk = bitbox.ECPair.toPublicKey(crowdfund);
 	const crowdfundPkh = bitbox.Crypto.hash160(crowdfundPk);
 
@@ -100,7 +100,7 @@ async function validateTokenId(localId, onchainId) {
 async function sendBch(cashAddress, sendAmount) {
 	try {
 		//TODO: sends sendAmount to the cashAddress
-		// need to decide whether to send via SLP SDK or instantiate Cashscript for sending mechanism		
+		// need to figure out how to trustlessly send BCH	
 	}
 	catch (err) {
 		console.error(`Error in sendBch: `, err)
@@ -119,7 +119,7 @@ async function sendToken(fundingAddress, fundingWif, tokenReceiverAddress, bchCh
       fundingWif,
       tokenReceiverAddress,
       bchChangeReceiverAddress,
-      tokenId: TOKENID,
+      tokenId: CCDCTOKENID,
       amount: tokenQty
     }
 
