@@ -18,7 +18,6 @@
   //	2. decide whether the sending mechanism should be done via SLP SDK or to instantiate Cashscript
   //
   // Challenges:
-  //  ~~1. No existing BCH op codes to store and retrieve data~~
   //  2. No loop functions in cashscript yet so unable to traverse the array onchain - a security risk
   //  3. No * operand due to incompatibility with Bitcoin script, so can't calculate distribution ratio onchain - a security risk
   //  4. Figure out logic to set aside transaction fees for each dividend distribution
