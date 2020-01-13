@@ -16,13 +16,13 @@
   // Initiate a second loop through tokenHolders Array to send:
   //	1. (distributionRate * tokenHolder.tokenBalance) worth of BCH tokens to tokenHolder.cashAddress
   //	2. decide whether the sending mechanism should be done via SLP SDK or to instantiate Cashscript
+  //  3. add logic to set aside transaction fees
   //
   // Challenges:
   //  1. Not possible to retrieve memopress/blockpress onchain messages from within the cashscript contract
   //  2. No loop functions in cashscript yet so unable to traverse the array onchain - a security risk
   //  3. No * operand due to incompatibility with Bitcoin script, so can't calculate distribution ratio onchain - a security risk
-  //  4. Figure out logic to set aside transaction fees for each dividend distribution
-~~~
+  ~~~
 
 ***Getting started***
 
