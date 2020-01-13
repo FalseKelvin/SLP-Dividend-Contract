@@ -15,8 +15,9 @@
   //
   // Initiate a second loop through tokenHolders Array to send:
   //	1. (distributionRate * tokenHolder.tokenBalance) worth of BCH tokens to tokenHolder.cashAddress
-  //	2. decide whether the sending mechanism should be done via SLP SDK or to instantiate Cashscript
-  //  3. add logic to set aside transaction fees
+  //  2. awaiting next cashscript release with new enums added to SDK to enable boolean outcomes from contract to client side
+  //	3. decide whether the sending mechanism should be done via SLP SDK or to instantiate Cashscript
+  //  4. add logic to set aside transaction fees
   //
   // Challenges:
   //  1. Not possible to retrieve memopress/blockpress onchain messages from within the cashscript contract
