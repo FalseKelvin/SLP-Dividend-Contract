@@ -28,7 +28,7 @@ async function run() {
 	var totalCCDCHeld = 0;
 	var distributionRate = 0;
 
-	// retrieves and decodes the CCDC V3 token ID permanently stored onchain via blockpress
+	// retrieves and decodes the CCDC token ID permanently stored onchain via blockpress
 	let memopress = require('memopress');
 	var memo = memopress.decode(decodeTx).message;
 	const onchainTokenId = memo.split('@').pop(); // removes the '@' and opcode from buffer
