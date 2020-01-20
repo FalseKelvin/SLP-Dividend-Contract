@@ -2,12 +2,12 @@
 const { BITBOX }			= require('bitbox-sdk');
 const SLPSDK 				= require("../../slp-sdk/lib/SLP"); // amend depending on where your SLP SDK is stored
 const { Contract, Sig, FailedRequireError } = require('cashscript');
-const path 					= require('path');
+const path 				= require('path');
 const CCDCTOKENID 			= "INSERT CCDC TOKEN ID";
-const crowdFundAddress 		= 'INSERT CROWDFUND CASHADDRESS'; // address holding the BCH for distribution
+const crowdFundAddress 			= 'INSERT CROWDFUND CASHADDRESS'; // address holding the BCH for distribution
 const decodeTx 				= 'INSERT BLOCKPRESS DECODE: OPCODE + TX'
-const smartContractMnemonic = 'INSERT CROWDFUND MNEMONIC';
-var totalBCHForDistribution = 0.1; // total BCH for distribution in this airdrop
+const smartContractMnemonic 		= 'INSERT CROWDFUND MNEMONIC';
+var totalBCHForDistribution 		= 0.1; // total BCH for distribution in this airdrop
 const network 				= 'testnet';
 // =============================================================
 
