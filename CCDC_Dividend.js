@@ -5,9 +5,9 @@ const { Contract, Sig, FailedRequireError } = require('cashscript');
 const path 				= require('path');
 const CCDCTOKENID 			= "INSERT CCDC TOKEN ID";
 const crowdFundAddress 			= 'INSERT CROWDFUND CASHADDRESS'; // address holding the BCH for distribution
-const decodeTx 				= 'INSERT BLOCKPRESS DECODE: OPCODE + TX'
+const decodeTx 				= 'OP_RETURN 653 6a028d024065633130613633613430363764666638356138626139323536646430633961383666323566396134313931623734313161353466356332666466643139323231';
 const smartContractMnemonic 		= 'INSERT CROWDFUND MNEMONIC';
-var totalBCHForDistribution 		= 0.1; // total BCH for distribution in this airdrop
+var totalBCHForDistribution 		= 1; // total BCH for distribution in this airdrop
 const network 				= 'testnet';
 // =============================================================
 
