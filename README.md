@@ -11,11 +11,10 @@
 3. A distribution rate is calculated by dividing the total BCH deposited by the total amount of token supply
 4. BCH is sent to each token holder based on their distribution rate
 
-***Challenges - help needed***
+***STATUS***
 ~~~
-  // Remaining issues:
-  //  * getting a 'bchtest:blahdsadfasdfdsenktvfdz has no matching Script' error when sending the BCH. 
-  //  Need to change sending logic to be a pay to many rather than looping through the array of token holders.
+  // 22nd Jan: Successfully working on testnet. Just need to improve the sending mechanism so it's a pay to many
+  //           transaction.
 
   ~~~
 
