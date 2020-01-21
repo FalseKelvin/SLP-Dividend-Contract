@@ -5,24 +5,38 @@
 - The corresponding BCH deposited to a crowdsale address are to be distributed to holders of the SLP token
 - The amount of BCH to be distributed for each token holder will be calculated based on the amount of tokens in each holder's SLP address
 
-***Functions currently working (via SLPDividend.js)***
+***Functions Overview***
 1. Takes a snapshot of all CCDC token holders and retrieves the amount of tokens they hold in their SLP addresses
 2. Calls on a CashScript contract to validate the token ID being used aginast the official token ID stored onchain via blockpress
 3. A distribution rate is calculated by dividing the total BCH deposited by the total amount of token supply
 4. BCH is sent to each token holder based on their distribution rate
 
-***STATUS***
+***STATUS: Successfully tested on Testnet***
 ~~~
-  // 22nd Jan: Successfully working on testnet. Just need to improve the sending mechanism so it's a pay to many
-  //           transaction.
+22nd Jan: 
+Successfully working on testnet. Just need to improve the sending mechanism so it's a pay to many transaction.
+
+Pre-Mainnet runsheet:
+- publish CCDC token ID from mainnet onto memo via blockpress
+- change CCDCTOKENID in js to mainnet token ID
+- set decodeTx to OP RETURN 653 + new token ID
+- change network constant to mainnet
+- change totalBCHForDistribution to desired airdrop amount
+- set crowdFundAddress, crowdFundAddressWIF, smartContractMnemonic parameters
+- send some sats to the mainnet CashScript contract for validation transaction
+- TEST1: comment out body of sendBCH() and do a read only mainnet snapshot as a test
+- TEST2: uncomment sendBCH() and set totalBCHForDistribution to 0.1 as mainnet test
+- PROD RUN: run full distribution logic
 
   ~~~
 
 ***Getting started***
 
-Prerequisites: Install [SLP SDK](https://github.com/Bitcoin-com/slp-sdk) and [Cashscript SDK](https://developer.bitcoin.com/cashscript/docs/getting-started) beforehand
-
-Clone the repo and run the client logic in SLPDividend.js
+1. [Install Bixbox SDK](https://developer.bitcoin.com/bitbox/docs/getting-started)
+2. [Install SLP SDK 0.3.1 or above](https://github.com/Bitcoin-com/slp-sdk)
+3. [Install Cashscript SDK](https://developer.bitcoin.com/cashscript/docs/getting-started)
+4. [Install Memopress](https://developer.bitcoin.com/tutorials/memopress/)
+5. Clone the repo and run the client logic in CCDC_Dividend.js
 ~~~
 git clone https://github.com/fifikobayashi/SLP-Dividend-Contract
 cd SLP-Dividend-Contract
