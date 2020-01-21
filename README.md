@@ -33,8 +33,8 @@ Pre-Mainnet runsheet:
 ***Getting started***
 
 1. [Install Bixbox SDK](https://developer.bitcoin.com/bitbox/docs/getting-started)
-2. [Install SLP SDK 0.3.1 or above](https://github.com/Bitcoin-com/slp-sdk)
-3. [Install Cashscript SDK](https://developer.bitcoin.com/cashscript/docs/getting-started)
+2. [Install SLP SDK](https://github.com/Bitcoin-com/slp-sdk)
+3. [Install Cashscript SDK 0.3.1 or above](https://developer.bitcoin.com/cashscript/docs/getting-started)
 4. [Install Memopress](https://developer.bitcoin.com/tutorials/memopress/)
 5. Clone the repo and run the client logic in CCDC_Dividend.js
 ~~~
