@@ -123,9 +123,7 @@ async function sendBch(sendAddress, receiveAddress, sendAmountSats) {
     const SEND_ADDR_LEGACY = bitbox.Address.toLegacyAddress(sendAddress)
     const RECV_ADDR_LEGACY = bitbox.Address.toLegacyAddress(receiveAddress)
 
-    const balance2 = await getBCHBalance(receiveAddress, false)
-
-	// retrieve utxos of address
+    // retrieve utxos of address
     const u = await bitbox.Address.utxo(sendAddress)
     const utxo = findBiggestUtxo(u.utxos)
 
