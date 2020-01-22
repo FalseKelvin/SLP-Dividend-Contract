@@ -36,7 +36,8 @@ Pre-Mainnet runsheet:
 2. [Install SLP SDK](https://github.com/Bitcoin-com/slp-sdk)
 3. [Install Cashscript SDK 0.3.1 or above](https://developer.bitcoin.com/cashscript/docs/getting-started)
 4. [Install Memopress](https://developer.bitcoin.com/tutorials/memopress/)
-5. Clone the repo and run the client logic in CCDC_Dividend.js
+5. Fund a crowdfunding cashaddress and set the initialisation parameters in CCDC_Dividend.js
+6. Clone the repo and run the client logic in CCDC_Dividend.js
 ~~~
 git clone https://github.com/fifikobayashi/SLP-Dividend-Contract
 cd SLP-Dividend-Contract
