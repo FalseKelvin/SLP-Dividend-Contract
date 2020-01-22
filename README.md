@@ -46,3 +46,7 @@ node CCDC_Dividend.js
 
   
 ![Current output from SLPDividend.js](https://raw.githubusercontent.com/fifikobayashi/SLP-Dividend-Contract/master/Screenshots/SLP%20Dividend%20v0.1%20-%202020-01-22.PNG)
+
+
+Test Tx:
+https://explorer.bitcoin.com/tbch/tx/0b1f2d29b75eb6e1e3718c9851e3eca8533115d5f4e3b85824983598f6540928
