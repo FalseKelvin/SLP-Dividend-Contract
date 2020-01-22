@@ -1,4 +1,4 @@
-# SLP-Dividend-Contract - Work in progress
+# SLP-Dividend-Contract - successfully tested on testnet
 
 ***Use Case***
 - X number of users currently hold a particular SLP token
