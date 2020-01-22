@@ -137,25 +137,24 @@ async function sendBch(ccdcHolders, distributionRate, ccdcAddrCount) {
 
     var totalSatsForDistribution = 0; // tracks the total sats for distribution
 
-    // iteration through array of token holders to send alloted BCH
-	for (var i = 0; i < ccdcAddrCount; i++) {
-		var sendAmountBch = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
-		var sendAmountSat = Math.floor(bitbox.BitcoinCash.toSatoshi(sendAmountBch)); // convert from BCH to SATs
-		var receiveAddress = SLP.Address.toCashAddress(ccdcHolders[i].slpAddress);
+    // iteration through array of token holders to build the pay2many transaction output
+    for (var i = 0; i < ccdcAddrCount; i++) {
+	var sendAmountBch = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
+	var sendAmountSat = Math.floor(bitbox.BitcoinCash.toSatoshi(sendAmountBch)); // convert from BCH to SATs
+	var receiveAddress = SLP.Address.toCashAddress(ccdcHolders[i].slpAddress);
 
-		console.log('\nTx #: ' + (i+1) + ' of ' + ccdcAddrCount + '\nSending '
-		+ sendAmountBch + ' bch to ' + receiveAddress);
+	console.log('\nTx #: ' + (i+1) + ' of ' + ccdcAddrCount + '\nSending '
+	+ sendAmountBch + ' bch to ' + receiveAddress);
 
-		// retrieve the corresponding cash address for each SLP address
-		const RECV_ADDR_LEGACY = bitbox.Address.toLegacyAddress(receiveAddress);
+	// retrieve the corresponding cash address for each SLP address
+	const RECV_ADDR_LEGACY = bitbox.Address.toLegacyAddress(receiveAddress);
 
-		// keep track of total sats for this tx
-		totalSatsForDistribution = totalSatsForDistribution + sendAmountSat;
+	// keep track of total sats for this tx
+	totalSatsForDistribution = totalSatsForDistribution + sendAmountSat;
 
-		// add output w/ address and amount to send
-		transactionBuilder.addOutput(receiveAddress, sendAmountSat);
-
-	}
+	// add output w/ address and amount to send
+	transactionBuilder.addOutput(receiveAddress, sendAmountSat);
+    }
 
     // amount to send back to the sending address.
     // It's the original amount - 1.2 sat/byte for tx size
