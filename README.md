@@ -7,7 +7,7 @@
 
 ***Functions Overview***
 1. Takes a snapshot of all CCDC token holders and retrieves the amount of tokens they hold in their SLP addresses
-2. Calls on a CashScript contract to validate the token ID being used aginast the official token ID stored onchain via blockpress
+2. Calls on a CashScript contract to validate the token ID being used aginst the official token ID stored onchain via blockpress
 3. A distribution rate is calculated by dividing the total BCH deposited by the total amount of token supply
 4. BCH is sent to each token holder based on their distribution rate
 
