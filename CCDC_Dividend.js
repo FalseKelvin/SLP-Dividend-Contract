@@ -33,7 +33,7 @@ async function run() {
 	var memo = memopress.decode(decodeTx).message;
 	const onchainTokenId = memo.split('@').pop(); // removes the '@' and opcode from buffer
 
-	// boolean outcome from cashscript method
+	// calls the cashscript contract to validate the token onchain
 	var validation = await validateTokenId(CCDCTOKENID, onchainTokenId);
 
 	if (validation == true) { // if token ID matches the onchain version
