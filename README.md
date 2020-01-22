@@ -43,5 +43,5 @@ cd SLP-Dividend-Contract
 node CCDC_Dividend.js
 ~~~
 
- 
+  
 ![Current output from SLPDividend.js](https://raw.githubusercontent.com/fifikobayashi/SLP-Dividend-Contract/master/Screenshots/SLP%20Dividend%20-%202020-01-22.PNG)
