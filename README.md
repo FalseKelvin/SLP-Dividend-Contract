@@ -9,12 +9,12 @@
 1. Takes a snapshot of all CCDC token holders and retrieves the amount of tokens they hold in their SLP addresses
 2. Calls on a CashScript contract to validate the token ID being used aginst the official token ID stored onchain via blockpress
 3. A distribution rate is calculated by dividing the total BCH deposited by the total amount of token supply
-4. BCH is sent to each token holder based on their distribution rate
+4. Builds a Pay2Many transaction output and sends BCH to each token holder based on their distribution rate
 
 ***STATUS: Successfully tested on Testnet***
 ~~~
 22nd Jan: 
-Successfully working on testnet. Just need to improve the sending mechanism so it's a pay to many transaction.
+Successfully working on testnet. Ready for independent testing and code audit.
 
 Pre-Mainnet runsheet:
 - publish CCDC token ID from mainnet onto memo via blockpress
