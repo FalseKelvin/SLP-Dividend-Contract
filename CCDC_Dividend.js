@@ -4,7 +4,7 @@ const SLPSDK 				= require("../../slp-sdk/lib/SLP"); // amend depending on where
 const { Contract, Sig, FailedRequireError } = require('cashscript');
 const path 				= require('path');
 const CCDCTOKENID 			= "ec10a63a4067dff85a8ba9256dd0c9a86f25f9a4191b7411a54f5c2fdfd19221"; // CCDC token ID on testnet
-const crowdFundAddress 			= 'INSERT CROWDFUND CASH ADDRESS'; // address holding the BCH for distribution
+const crowdFundAddress 			= 'INSERT CROWDFUND ADDRESS'; // address holding the BCH for distribution
 const decodeTx 				= 'OP_RETURN 653 6a028d024065633130613633613430363764666638356138626139323536646430633961383666323566396134313931623734313161353466356332666466643139323231'
 const smartContractMnemonic 		= 'INSERT CROWDFUND MNEMONIC';
 var totalBCHForDistribution 		= 0.5; // total BCH for distribution in this airdrop
@@ -33,7 +33,7 @@ async function run() {
 	var memo = memopress.decode(decodeTx).message;
 	const onchainTokenId = memo.split('@').pop(); // removes the '@' and opcode from buffer
 
-	// calls on a CashScript contract to validate the token ID vs the onchain version
+	// boolean outcome from cashscript method
 	var validation = await validateTokenId(CCDCTOKENID, onchainTokenId);
 
 	if (validation == true) { // if token ID matches the onchain version
@@ -58,16 +58,9 @@ async function run() {
 			+ ' BCH per 1.0 CCDC SLP token held. \ne.g. holders of 0.5 CCDC will get '
 			+ (distributionRate/2).toString() + ' BCH.\n');
 
-		// 2nd iteration through array of CCDC holders to send alloted BCH
-		for (var i = 0; i < ccdcAddrCount; i++) {
-			var sendAmount = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
-			console.log('\nTx #: ' + (i+1) + ' of ' + ccdcAddrCount + '\nSending ' + sendAmount + ' bch to '
-			+ SLP.Address.toCashAddress(ccdcHolders[i].slpAddress));
-			// sends the BCH (in sats) to the holder's cash address
-			await sendBch(crowdFundAddress,
-				SLP.Address.toCashAddress(ccdcHolders[i].slpAddress),
-				bitbox.BitcoinCash.toSatoshi(sendAmount));
-		}
+		// passes the array of token holders for BCH distribution
+		sendBch(ccdcHolders, distributionRate, ccdcAddrCount);
+
 
 	} else { // if the token ID did not match the onchain version
 
@@ -115,46 +108,64 @@ async function validateTokenId(localId, onchainId) {
 }
 
 // distribution of the BCH from the crowdfund address to holders of the SLP token
-async function sendBch(sendAddress, receiveAddress, sendAmountSats) {
+async function sendBch(ccdcHolders, distributionRate, ccdcAddrCount) {
 
   try {
 
     // convert cash addresses into legacy addresses
-    const SEND_ADDR_LEGACY = bitbox.Address.toLegacyAddress(sendAddress)
-    const RECV_ADDR_LEGACY = bitbox.Address.toLegacyAddress(receiveAddress)
+    const SEND_ADDR_LEGACY = bitbox.Address.toLegacyAddress(crowdFundAddress);
 
     // retrieve utxos of address
-    const u = await bitbox.Address.utxo(sendAddress)
-    const utxo = findBiggestUtxo(u.utxos)
+    const u = await bitbox.Address.utxo(crowdFundAddress);
+    const utxo = findBiggestUtxo(u.utxos);
+    const originalAmount = utxo.satoshis; // original total sats in address
+    const vout = utxo.vout;
+    const txid = utxo.txid;
 
-    const transactionBuilder = new bitbox.TransactionBuilder(network)
-
-	// since satoshi's can't be fractional at time of code
-    const satoshisToSend = Math.floor(sendAmountSats)
-    const originalAmount = utxo.satoshis
-    const vout = utxo.vout
-    const txid = utxo.txid
-
-    // add input with txid and index of vout
-    transactionBuilder.addInput(txid, vout)
+    // initiates TransactionBuilder on the selected network
+    const transactionBuilder = new bitbox.TransactionBuilder(network);
 
     // get byte count to calculate fee. paying 1.2 sat/byte
-    const byteCount = bitbox.BitcoinCash.getByteCount(
-      { P2PKH: 1 },
-      { P2PKH: 2 }
-    )
-    console.log(`byteCount: ${byteCount}`)
-    const satoshisPerByte = 1.2
-    const txFee = Math.floor(satoshisPerByte * byteCount)
-    console.log(`txFee: ${txFee}`)
+    const byteCount = 300 * ccdcAddrCount;
+    console.log(`byteCount: ${byteCount}`);
+    const satoshisPerByte = 1.2;
+    const txFee = Math.floor(satoshisPerByte * byteCount);
+    console.log(`txFee: ${txFee}`);
+
+    // add input with txid and index of vout
+    transactionBuilder.addInput(txid, vout);
+
+    var totalSatsForDistribution = 0; // tracks the total sats for distribution
+
+    // iteration through array of token holders to send alloted BCH
+	for (var i = 0; i < ccdcAddrCount; i++) {
+		var sendAmountBch = ccdcHolders[i].tokenBalance * distributionRate; // calculate the correct BCH to send
+		var sendAmountSat = Math.floor(bitbox.BitcoinCash.toSatoshi(sendAmountBch)); // convert from BCH to SATs
+		var receiveAddress = SLP.Address.toCashAddress(ccdcHolders[i].slpAddress);
+
+		console.log('\nTx #: ' + (i+1) + ' of ' + ccdcAddrCount + '\nSending '
+		+ sendAmountBch + ' bch to ' + receiveAddress);
+
+		// retrieve the corresponding cash address for each SLP address
+		const RECV_ADDR_LEGACY = bitbox.Address.toLegacyAddress(receiveAddress);
+
+		// keep track of total sats for this tx
+		totalSatsForDistribution = totalSatsForDistribution + sendAmountSat;
+
+		// add output w/ address and amount to send
+		transactionBuilder.addOutput(receiveAddress, sendAmountSat);
+
+	}
 
     // amount to send back to the sending address.
-    // It's the original amount - 1 sat/byte for tx size
-    const remainder = originalAmount - satoshisToSend - txFee
+    // It's the original amount - 1.2 sat/byte for tx size
+    const remainder = originalAmount - totalSatsForDistribution - txFee;
 
-    // add output w/ address and amount to send
-    transactionBuilder.addOutput(receiveAddress, satoshisToSend)
-    transactionBuilder.addOutput(sendAddress, remainder)
+	// final output for the remainder sats to return to the sender
+	transactionBuilder.addOutput(crowdFundAddress, remainder);
+
+    // since satoshi's can't be fractional at time of code
+    const satoshisToSend = Math.floor(totalSatsForDistribution - txFee);
 
     // Generate a change address from a Mnemonic of a private key.
     const change = changeAddrFromMnemonic(smartContractMnemonic)
@@ -180,6 +191,7 @@ async function sendBch(sendAddress, receiveAddress, sendAmountSats) {
     // Broadcast transation to the network
     const txidStr = await bitbox.RawTransactions.sendRawTransaction([hex])
     console.log(`Transaction ID: ${txidStr}`)
+
   } catch (err) {
     console.log(`error: `, err)
   }
